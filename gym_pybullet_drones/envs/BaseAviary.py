@@ -33,6 +33,7 @@ class BaseAviary(gym.Env):
                  ctrl_freq: int = 240,
                  gui=False,
                  record=False,
+                 video_size=None,
                  obstacles=False,
                  user_debug_gui=True,
                  vision_attributes=False,
@@ -62,6 +63,8 @@ class BaseAviary(gym.Env):
             Whether to use PyBullet's GUI.
         record : bool, optional
             Whether to save a video of the simulation.
+        video_size : tuple[int, int] | None, optional
+            Width and height of the GUI viewport used for video recording.
         obstacles : bool, optional
             Whether to add obstacles to the simulation.
         user_debug_gui : bool, optional
@@ -88,6 +91,7 @@ class BaseAviary(gym.Env):
         self.DRONE_MODEL = drone_model
         self.GUI = gui
         self.RECORD = record
+        self.VIDEO_SIZE = video_size
         self.PHYSICS = physics
         self.OBSTACLES = obstacles
         self.USER_DEBUG = user_debug_gui
@@ -146,7 +150,13 @@ class BaseAviary(gym.Env):
         #### Connect to PyBullet ###################################
         if self.GUI:
             #### With debug GUI ########################################
-            self.CLIENT = p.connect(p.GUI) # p.connect(p.GUI, options="--opengl2")
+            gui_options = ""
+            if self.RECORD and self.VIDEO_SIZE is not None:
+                width, height = self.VIDEO_SIZE
+                if width <= 0 or height <= 0:
+                    raise ValueError("video_size dimensions must be positive")
+                gui_options = f"--width={width} --height={height}"
+            self.CLIENT = p.connect(p.GUI, options=gui_options)
             for i in [p.COV_ENABLE_RGB_BUFFER_PREVIEW, p.COV_ENABLE_DEPTH_BUFFER_PREVIEW, p.COV_ENABLE_SEGMENTATION_MARK_PREVIEW]:
                 p.configureDebugVisualizer(i, 0, physicsClientId=self.CLIENT)
             p.resetDebugVisualizerCamera(cameraDistance=3,
@@ -418,6 +428,22 @@ class BaseAviary(gym.Env):
         if self.RECORD and self.GUI:
             p.stopStateLogging(self.VIDEO_ID, physicsClientId=self.CLIENT)
         p.disconnect(physicsClientId=self.CLIENT)
+    
+    ################################################################################
+
+    def set_camera(self,
+                   cameraDistance,
+                   cameraYaw,
+                   cameraPitch,
+                   cameraTargetPosition):
+        """Sets the GUI camera used for display and video recording."""
+        if not self.GUI:
+            return
+        p.resetDebugVisualizerCamera(cameraDistance=cameraDistance,
+                                     cameraYaw=cameraYaw,
+                                     cameraPitch=cameraPitch,
+                                     cameraTargetPosition=cameraTargetPosition,
+                                     physicsClientId=self.CLIENT)
     
     ################################################################################
 

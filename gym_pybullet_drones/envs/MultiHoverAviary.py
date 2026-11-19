@@ -19,6 +19,7 @@ class MultiHoverAviary(BaseRLAviary):
                  ctrl_freq: int = 30,
                  gui=False,
                  record=False,
+                 video_size=None,
                  obs: ObservationType=ObservationType.KIN,
                  act: ActionType=ActionType.RPM
                  ):
@@ -48,6 +49,8 @@ class MultiHoverAviary(BaseRLAviary):
             Whether to use PyBullet's GUI.
         record : bool, optional
             Whether to save a video of the simulation.
+        video_size : tuple[int, int] | None, optional
+            Width and height of the GUI viewport used for video recording.
         obs : ObservationType, optional
             The type of observation space (kinematic information or vision)
         act : ActionType, optional
@@ -65,6 +68,7 @@ class MultiHoverAviary(BaseRLAviary):
                          ctrl_freq=ctrl_freq,
                          gui=gui,
                          record=record, 
+                         video_size=video_size,
                          obs=obs,
                          act=act
                          )

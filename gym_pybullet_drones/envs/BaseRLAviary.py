@@ -24,6 +24,7 @@ class BaseRLAviary(BaseAviary):
                  ctrl_freq: int = 240,
                  gui=False,
                  record=False,
+                 video_size=None,
                  obs: ObservationType=ObservationType.KIN,
                  act: ActionType=ActionType.RPM
                  ):
@@ -56,6 +57,8 @@ class BaseRLAviary(BaseAviary):
             Whether to use PyBullet's GUI.
         record : bool, optional
             Whether to save a video of the simulation.
+        video_size : tuple[int, int] | None, optional
+            Width and height of the GUI viewport used for video recording.
         obs : ObservationType, optional
             The type of observation space (kinematic information, rgb, depth, or all)
         act : ActionType, optional
@@ -86,6 +89,7 @@ class BaseRLAviary(BaseAviary):
                          ctrl_freq=ctrl_freq,
                          gui=gui,
                          record=record, 
+                         video_size=video_size,
                          obstacles=True, # Add obstacles for RGB observations and/or FlyThruGate
                          user_debug_gui=False, # Remove of RPM sliders from all single agent learning aviaries
                          vision_attributes=vision_attributes,

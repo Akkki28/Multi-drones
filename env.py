@@ -41,11 +41,23 @@ class ContinuousMAEnv:
         self.env.close()
 
 
-def make_env(num_drones, act_type="ONE_D_RPM", gui=False):
+def make_env(num_drones, act_type="ONE_D_RPM", gui=False, record=False,
+             video_size=None):
     raw = MultiHoverAviary(num_drones=num_drones,
                            obs=ObservationType.KIN,
                            act=ActionType[act_type],
-                           gui=gui)
+                           gui=gui,
+                           record=record,
+                           video_size=video_size)
+    if gui:
+        center = raw.INIT_XYZS.mean(axis=0)
+        spread = np.ptp(raw.INIT_XYZS[:, :2], axis=0).max()
+        raw.set_camera(
+            cameraDistance=max(1.25, float(spread) * 2.5),
+            cameraYaw=-35,
+            cameraPitch=-25,
+            cameraTargetPosition=(center + np.array([0.0, 0.0, 0.35])).tolist(),
+        )
     env = ContinuousMAEnv(PettingZooWrapper(raw))
     env.ctrl_freq = getattr(raw, "CTRL_FREQ", 30)
     return env
